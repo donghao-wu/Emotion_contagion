@@ -1,51 +1,49 @@
-# app.py
 from model import UrbanMoodModel
 from mesa.visualization import Slider, SolaraViz, make_plot_component
 from mesa.visualization.components.matplotlib_components import make_mpl_space_component
 
-
 def agent_portrayal(agent):
+    """Visualization settings for agents"""
     if agent.isolated:
-        return {"color": "gray"}
-    elif agent.mood > 0.5:
-        return {"color": "green"}
-    elif agent.mood < -0.5:
-        return {"color": "red"}
-    else:
-        return {"color": "orange"}
+        return {"marker": "s", "color": "gray", "size": 15}
+    return {
+        "marker": "o",
+        "color": "green" if agent.mood > 0 else "red",
+        "size": 10 + abs(agent.mood)*30
+    }
 
+env_portrayal = {
+    "environment": {
+        "cmap": "RdYlGn",
+        "vmin": -0.1,
+        "vmax": 0.1,
+        "alpha": 0.3,
+        "colorbar": True
+    }
+}
 
-def background_color(pos, layer):
-    value = layer.get(pos, 0.0)
-    if value > 0:
-        return "#d0f0c0"  # green space
-    elif value < 0:
-        return "#f9c0c0"  # stress zone
-    return "#ffffff"  # neutral
-
-
-grid_component = make_mpl_space_component(
-    UrbanMoodModel,
+mood_space = make_mpl_space_component(
     agent_portrayal=agent_portrayal,
-    property_layers={"mood_modifier": background_color},
-    fps=3
+    propertylayer_portrayal=env_portrayal,
+    draw_grid=False
 )
 
-plot_component = make_plot_component(
-    UrbanMoodModel,
-    title="Mood and Isolation Over Time",
-    series=["average_mood", "num_isolated"]
-)
+model_params = {
+    "width": Slider("Grid Width", 10, 50, 30),
+    "height": Slider("Grid Height", 10, 50, 30),
+    "N": Slider("Agents", 10, 300, 100),
+    "green_pct": Slider("Green %", 0.0, 0.5, 0.1, 0.05),
+    "stress_pct": Slider("Stress %", 0.0, 0.5, 0.1, 0.05)
+}
 
 page = SolaraViz(
     UrbanMoodModel,
-    [grid_component, plot_component],
-    name="UrbanMood",
-    parameters={
-        "width": Slider(10, 50, 30, name="Grid Width"),
-        "height": Slider(10, 50, 30, name="Grid Height"),
-        "N": Slider(10, 300, 100, name="Agents"),
-        "green_pct": Slider(0.0, 0.5, 0.1, step=0.05, name="Green %"),
-        "stress_pct": Slider(0.0, 0.5, 0.1, step=0.05, name="Stress %")
-    }
+    components=[
+        mood_space,
+        make_plot_component("Average Mood"),
+        make_plot_component("Number of Isolated")
+    ],
+    model_params=model_params,
+    name="Urban Mood Dynamics",
+    play_interval=500
 )
