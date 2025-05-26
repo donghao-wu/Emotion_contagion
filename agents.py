@@ -1,8 +1,8 @@
 from mesa import Agent  #
 
-class UrbanAgent(Agent):  
-    def __init__(self, unique_id, model, pos, mood, sensitivity, mobility_threshold, isolation_threshold):
-        Agent.__init__(self, unique_id, model)  
+class UrbanAgent(Agent):
+    def __init__(self, model, pos, mood, sensitivity, mobility_threshold, isolation_threshold):
+        super().__init__(model) 
         self.pos = pos
         self.mood = mood
         self.sensitivity = sensitivity

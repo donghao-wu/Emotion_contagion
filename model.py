@@ -30,6 +30,7 @@ class UrbanMoodModel(Model):
         - stress_ratio: Ratio of stress zones (negative mood effect)
         - seed: Random seed for reproducibility
         """
+        super().__init__(seed=seed)
         self.width = width
         self.height = height
         self.grid = SingleGrid(width, height, torus =False)
@@ -87,7 +88,6 @@ class UrbanMoodModel(Model):
                     isolation_threshold = random.uniform(-0.9, -0.5)
 
                     agent = UrbanAgent(
-                        unique_id=agent_id,
                         model=self,
                         pos=(x, y),
                         mood=mood,
