@@ -1,49 +1,60 @@
 from model import UrbanMoodModel
-from mesa.visualization import Slider, SolaraViz, make_plot_component
-from mesa.visualization.components.matplotlib_components import make_mpl_space_component
+from mesa.visualization import (
+    SolaraViz,
+    Slider,
+    make_plot_component,
+    make_space_component
+)
 
+# --- Agent Visual Representation ---
 def agent_portrayal(agent):
-    """Visualization settings for agents"""
-    if agent.isolated:
-        return {"marker": "s", "color": "gray", "size": 15}
+    mood = agent.mood
+    if agent.is_isolated:
+        color = "#cccccc"
+    elif mood > 0.2:
+        color = "#55cc55"
+    elif mood < -0.2:
+        color = "#cc5555"
+    else:
+        color = "#bbbbbb"
+
     return {
+        "color": color,
         "marker": "o",
-        "color": "green" if agent.mood > 0 else "red",
-        "size": 10 + abs(agent.mood)*30
+        "size": 25,
     }
 
-env_portrayal = {
-    "environment": {
-        "cmap": "RdYlGn",
-        "vmin": -0.1,
-        "vmax": 0.1,
-        "alpha": 0.3,
-        "colorbar": True
-    }
-}
-
-mood_space = make_mpl_space_component(
-    agent_portrayal=agent_portrayal,
-    propertylayer_portrayal=env_portrayal,
-    draw_grid=False
-)
-
+# --- GUI Parameters ---
 model_params = {
-    "width": Slider("Grid Width", 10, 50, 30),
-    "height": Slider("Grid Height", 10, 50, 30),
-    "N": Slider("Agents", 10, 300, 100),
-    "green_pct": Slider("Green %", 0.0, 0.5, 0.1, 0.05),
-    "stress_pct": Slider("Stress %", 0.0, 0.5, 0.1, 0.05)
+    "seed": {
+        "type": "InputText",
+        "value": 42,
+        "label": "Random Seed",
+    },
+    "width": Slider("Grid Width", value=20, min=10, max=50, step=1),
+    "height": Slider("Grid Height", value=20, min=10, max=50, step=1),
+    "density": Slider("Population Density", value=0.7, min=0.1, max=1.0, step=0.05),
+    "green_ratio": Slider("Green Space Ratio", value=0.1, min=0.0, max=0.5, step=0.01),
+    "stress_ratio": Slider("Stress Zone Ratio", value=0.1, min=0.0, max=0.5, step=0.01),
+    "seed": {
+        "type": "InputText",
+        "value": 42,
+        "label": "Random Seed",
+    }
 }
 
+# --- Visualization Components ---
+Space = make_space_component(agent_portrayal=agent_portrayal)
+MoodPlot = make_plot_component("Average_Mood")
+IsolationPlot = make_plot_component("Num_Isolated")
+
+model = UrbanMoodModel()
 page = SolaraViz(
-    UrbanMoodModel,
-    components=[
-        mood_space,
-        make_plot_component("Average Mood"),
-        make_plot_component("Number of Isolated")
-    ],
+    model,
+    components=[Space, MoodPlot, IsolationPlot],
     model_params=model_params,
-    name="Urban Mood Dynamics",
-    play_interval=500
+    name="UrbanMood: Emotion Contagion in Cities",
+    play_interval=300,
 )
+
+page
