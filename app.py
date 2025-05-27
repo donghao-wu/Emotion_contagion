@@ -5,6 +5,22 @@ from mesa.visualization import (
     make_plot_component,
     make_space_component
 )
+from mesa.visualization.components.matplotlib_components import make_mpl_space_component
+import solara
+
+propertylayer_portrayal = {
+    "environment": {
+        "color": {
+            -1: "#ff9999",  # stress zone – soft red
+             0: "#f0f0f0",  # neutral – light grey
+             1: "#99ff99"   # green zone – soft green
+        },
+        "alpha": 0.8,
+        "colorbar": False,
+        "vmin": -1,
+        "vmax": 1,
+    }
+}
 
 # --- Agent Visual Representation ---
 def agent_portrayal(agent):
@@ -44,9 +60,17 @@ model_params = {
 }
 
 # --- Visualization Components ---
-Space = make_space_component(agent_portrayal=agent_portrayal)
+Space = make_mpl_space_component(
+    agent_portrayal=agent_portrayal,
+    propertylayer_portrayal=propertylayer_portrayal,
+    post_process=None,
+    draw_grid=False
+)
+
 MoodPlot = make_plot_component("Average_Mood")
 IsolationPlot = make_plot_component("Num_Isolated")
+
+
 
 model = UrbanMoodModel()
 page = SolaraViz(
