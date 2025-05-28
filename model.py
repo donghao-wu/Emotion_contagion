@@ -65,7 +65,7 @@ class UrbanMoodModel(Model):
         spawn_positions = all_positions[:self.agent_count]
 
         for pos in spawn_positions:
-            mood = random.uniform(-0.2, 0.2)
+            mood = random.uniform(-0.5, 0.5)
             sensitivity = random.uniform(0.2, 0.8)
             mobility_threshold = random.uniform(-0.3, 0.1)
             isolation_threshold = random.uniform(-0.9, -0.5)
