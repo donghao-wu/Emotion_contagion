@@ -10,17 +10,15 @@ import solara
 
 propertylayer_portrayal = {
     "environment": {
-        "color": {
-            -1: "#ff9999",  # stress zone – soft red
-             0: "#f0f0f0",  # neutral – light grey
-             1: "#99ff99"   # green zone – soft green
-        },
-        "alpha": 0.8,
+        "colormap": ["#ff9999", "#f0f0f0", "#99ff99"],  # -1→红, 0→灰, 1→绿
+        "alpha":    0.8,
         "colorbar": False,
-        "vmin": -1,
-        "vmax": 1,
+        "vmin":    -1,
+        "vmax":     1,
     }
 }
+
+
 
 # --- Agent Visual Representation ---
 def agent_portrayal(agent):

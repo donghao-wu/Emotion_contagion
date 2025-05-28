@@ -1,8 +1,9 @@
 from mesa import Model
-from mesa.space import SingleGrid
+from mesa.space import SingleGrid, PropertyLayer
 from agents import UrbanAgent
 import random
 import mesa
+import numpy as np
 
 class SimpleScheduler:
     def __init__(self, model):
@@ -22,7 +23,8 @@ class UrbanMoodModel(Model):
         super().__init__(seed=seed)
         self.width = width
         self.height = height
-        self.grid = SingleGrid(width, height, torus=False)
+        env_layer = PropertyLayer("environment", width, height, default_value=0)
+        self.grid = SingleGrid(width, height, torus=False, property_layers=env_layer)
         self.schedule = SimpleScheduler(self)
         self.environment_map = {}
         self.agent_count = int(width * height * density)
@@ -39,9 +41,6 @@ class UrbanMoodModel(Model):
             }
         )
 
-        self.property_layers = {
-            "environment": self._generate_environment_layer()
-        }
         self.running = True
 
     def _init_environment(self, green_ratio, stress_ratio):
@@ -50,14 +49,15 @@ class UrbanMoodModel(Model):
         num_stress = int(total_cells * stress_ratio)
         all_positions = [(x, y) for x in range(self.width) for y in range(self.height)]
         random.shuffle(all_positions)
-
         green_cells = all_positions[:num_green]
         stress_cells = all_positions[num_green:num_green + num_stress]
 
         for pos in green_cells:
-            self.environment_map[pos] = "green"
+            self.environment_map[pos] = "green"   
+            self.grid.properties["environment"].data[pos] = 1
         for pos in stress_cells:
             self.environment_map[pos] = "stress"
+            self.grid.properties["environment"].data[pos] = -1
 
     def _init_agents(self):
         all_positions = [(x, y) for x in range(self.width) for y in range(self.height)]
@@ -91,7 +91,9 @@ class UrbanMoodModel(Model):
     def step(self):
         self.schedule.step()
         self.datacollector.collect(self)
-        self.property_layers["environment"] = self._generate_environment_layer()
+        new_env_list = self._generate_environment_layer()
+        new_env_array = np.array(new_env_list)   # <- 关键：转成 ndarray
+        self.grid.properties["environment"].data = new_env_array
 
     def get_average_mood(self):
         moods = [agent.mood for agent in self.schedule.agents]
