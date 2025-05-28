@@ -3,10 +3,9 @@ from mesa.visualization import (
     SolaraViz,
     Slider,
     make_plot_component,
-    make_space_component
 )
 from mesa.visualization.components.matplotlib_components import make_mpl_space_component
-import solara
+
 
 propertylayer_portrayal = {
     "environment": {
@@ -47,7 +46,7 @@ model_params = {
     },
     "width": Slider("Grid Width", value=20, min=10, max=50, step=1),
     "height": Slider("Grid Height", value=20, min=10, max=50, step=1),
-    "density": Slider("Population Density", value=0.7, min=0.1, max=1.0, step=0.05),
+    "density": Slider("Population Density", value=0.5, min=0.1, max=1.0, step=0.05),
     "green_ratio": Slider("Green Space Ratio", value=0.1, min=0.0, max=0.5, step=0.01),
     "stress_ratio": Slider("Stress Zone Ratio", value=0.1, min=0.0, max=0.5, step=0.01),
     "seed": {
